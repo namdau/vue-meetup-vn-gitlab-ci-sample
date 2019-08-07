@@ -1,0 +1,77 @@
+image: node:latest
+
+stages:
+ - build
+ - test
+ - deploy
+
+cache:
+  paths:
+    - node_modules
+
+before_script:
+  - npm install -g yarn
+  - yarn install --silent
+
+build-staging:
+  stage: build
+  script:
+    - yarn run build-staging
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - dist
+    only:
+      - dev
+
+build-prod:
+  stage: build
+  script:
+    - yarn run build
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - dist
+  only:
+    - master
+  allow_failure: false
+
+deploy-staging:
+  image: namdq/docker-awscli:latest
+  stage: deploy
+  dependencies:
+    - build-staging
+  only:
+    - staging
+  before_script:
+    - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - aws s3 sync dist s3://vuevn-meetup-gitlabci-staging --delete --exclude ".DS_Store"
+  environment:
+    name: staging
+    url:  http://vuevn-meetup-gitlabci-staging.s3-website-ap-southeast-1.amazonaws.com
+
+deploy-prod:
+  image: namdq/docker-awscli:latest
+  stage: deploy
+  dependencies:
+    - build-prod
+  only:
+    - master
+  before_script:
+    - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - aws s3 sync dist s3://vuevn-meetup-gitlabci-prod --delete --exclude ".DS_Store"
+  environment:
+    name: prod
+    url:  http://vuevn-meetup-gitlabci-prod.s3-website-ap-southeast-1.amazonaws.com
