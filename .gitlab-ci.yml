@@ -77,6 +77,7 @@ deploy-production:
   script:
     - aws s3 sync dist s3://vuevn-meetup-gitlabci-prod --delete --exclude ".DS_Store"
   when: manual
+  allow_failure: false
   environment:
     name: prod
     url: http://vuevn-meetup-gitlabci-prod.s3-website-ap-southeast-1.amazonaws.com
