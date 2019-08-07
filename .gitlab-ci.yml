@@ -57,6 +57,8 @@ deploy-staging:
     - build-staging
   only:
     - dev
+  before_script:
+    - ''
   # before_script:
   #   - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
   #   - eval $(ssh-agent -s)
@@ -77,6 +79,8 @@ deploy-production:
     - build-production
   only:
     - master
+  before_script:
+    - ''
   # before_script:
   #   - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
   #   - eval $(ssh-agent -s)
@@ -86,6 +90,7 @@ deploy-production:
   #   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - aws s3 sync dist s3://vuevn-meetup-gitlabci-prod --delete --exclude ".DS_Store"
+  when: manual
   environment:
     name: prod
     url: http://vuevn-meetup-gitlabci-prod.s3-website-ap-southeast-1.amazonaws.com
