@@ -2,13 +2,25 @@ image: node:latest
 
 stages:
   - lint
-  - build
   - test
+  - build
   - deploy
 
 cache:
   paths:
     - node_modules
+
+code-review:
+  stage: lint
+  script:
+    - yarn lint
+  allow_failure: true
+
+unit-test:
+  stage: test
+  script:
+    - yarn test:unit --coverage
+  allow_failure: true
 
 before_script:
   - npm install -g yarn
@@ -38,14 +50,8 @@ build-production:
     - master
   allow_failure: false
 
-unit-test:
-  stage: test
-  script:
-    - yarn test:unit
-  allow_failure: true
-
 deploy-staging:
-  image: namdq/docker-awscli:latest
+  image: namdq/awscli:latest
   stage: deploy
   dependencies:
     - build-staging
