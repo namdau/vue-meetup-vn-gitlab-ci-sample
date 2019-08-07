@@ -59,13 +59,6 @@ deploy-staging:
     - dev
   before_script:
     - ''
-  # before_script:
-  #   - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
-  #   - eval $(ssh-agent -s)
-  #   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  #   - mkdir -p ~/.ssh
-  #   - chmod 700 ~/.ssh
-  #   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - aws s3 sync dist s3://vuevn-meetup-gitlabci-staging --delete --exclude ".DS_Store"
   environment:
@@ -73,7 +66,7 @@ deploy-staging:
     url: http://vuevn-meetup-gitlabci-staging.s3-website-ap-southeast-1.amazonaws.com
 
 deploy-production:
-  image: namdq/docker-awscli:latest
+  image: namdq/awscli:latest
   stage: deploy
   dependencies:
     - build-production
@@ -81,13 +74,6 @@ deploy-production:
     - master
   before_script:
     - ''
-  # before_script:
-  #   - 'which ssh-agent || ( apk --update add --no-cache openssh-client )'
-  #   - eval $(ssh-agent -s)
-  #   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  #   - mkdir -p ~/.ssh
-  #   - chmod 700 ~/.ssh
-  #   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
     - aws s3 sync dist s3://vuevn-meetup-gitlabci-prod --delete --exclude ".DS_Store"
   when: manual
