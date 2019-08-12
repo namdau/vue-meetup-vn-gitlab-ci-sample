@@ -1,4 +1,7 @@
 # vue-app-gitlab-ci
+Sample Gitlab CI config for building & deploying Vue application on Amazon S3, used for my talk at Vuejs Vietnam meetup #2 
+
+https://www.meetup.com/vuejs-vietnam/events/263361319/
 
 ## Project setup
 ```
